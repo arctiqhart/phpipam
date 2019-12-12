@@ -1,4 +1,4 @@
-FROM php:5.3-apache
+FROM php:5.6-apache
 MAINTAINER Hart Ripley <hart.ripley@arctiq.ca>
 
 ENV PHPIPAM_SOURCE https://github.com/phpipam/phpipam/archive/
