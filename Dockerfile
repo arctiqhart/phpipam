@@ -1,8 +1,8 @@
-FROM php:7.2-apache
+FROM php:5.3-apache
 MAINTAINER Hart Ripley <hart.ripley@arctiq.ca>
 
-ENV PHPIPAM_SOURCE https://github.com/phpipam/phpipam/
-ENV PHPIPAM_VERSION 1.3.2
+ENV PHPIPAM_SOURCE https://github.com/phpipam/phpipam/archive/
+ENV PHPIPAM_VERSION 1.3.1
 ENV WEB_REPO /var/www/html
 ENV PATH=${WEB_REPO}/bin:${PATH} HOME=${WEB_REPO}
 
@@ -17,7 +17,7 @@ RUN mkdir -p /var/lib/mibs/ietf && \
     curl -s ftp://ftp.cisco.com/pub/mibs/v2/CISCO-TC.my -o /var/lib/mibs/ietf/CISCO-TC.txt && \
     curl -s ftp://ftp.cisco.com/pub/mibs/v2/CISCO-VTP-MIB.my -o /var/lib/mibs/ietf/CISCO-VTP-MIB.txt && \
     curl -s ftp://ftp.cisco.com/pub/mibs/v2/MPLS-VPN-MIB.my -o /var/lib/mibs/ietf/MPLS-VPN-MIB.txt
-    
+
 # OpenShift permission modifications
 RUN mkdir -p /var/run/apache2 && chmod 777 -R /var/run/apache2 &&\
     mkdir -p /var/log/apache2 && chmod 777 -R /var/log/apache2 &&\
@@ -46,12 +46,10 @@ RUN docker-php-ext-configure mysqli --with-mysqli=mysqlnd && \
 
 COPY php.ini /usr/local/etc/php/
 
-# Copy phpipam sources to web dir
+# copy phpipam sources to web dir
 ADD ${PHPIPAM_SOURCE}/${PHPIPAM_VERSION}.tar.gz /tmp/
 RUN tar -xzf /tmp/${PHPIPAM_VERSION}.tar.gz -C ${WEB_REPO}/ --strip-components=1
 
-# Use system environment variables into config.php
-ENV PHPIPAM_BASE /
 RUN cp ${WEB_REPO}/config.dist.php ${WEB_REPO}/config.php && \
     sed -i -e "s/Listen 80/Listen 8080/" /etc/apache2/ports.conf &&\
     sed -i -e "s/\['host'\] = 'localhost'/\['host'\] = 'mysql'/" \
